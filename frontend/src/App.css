@@ -1,0 +1,12 @@
+.scrollbar::-webkit-scrollbar {
+  width: 10px;
+}
+
+.scrollbar::-webkit-scrollbar-track {
+  background-color: #f1f5f9; /* Tailwind's bg-slate-100 */
+}
+
+.scrollbar::-webkit-scrollbar-thumb {
+  background-color: #e2e8f0; /* Tailwind's bg-slate-200 */
+  border-radius: 9999px; /* Tailwind's rounded-full */
+}
