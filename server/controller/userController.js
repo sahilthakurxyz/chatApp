@@ -1,7 +1,7 @@
 const handleAsyncError = require("../middleware/handleAsyncError");
 const User = require("../models/userSchema.js");
 const { v2: cloudinary } = require("cloudinary");
-const sendToken = require("../utils/JwtToken.js");
+const sendToken = require("../utils/jwtToken.js");
 const bcryptjs = require("bcryptjs");
 const ErrorHandler = require("../utils/errorHandler.js");
 const userSchema = require("../models/userSchema.js");
