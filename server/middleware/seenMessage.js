@@ -18,7 +18,6 @@ const markMessageAsSeen = async (senderId, receiverId) => {
     console.log("no conversation");
     return;
   }
-  console.log(conversation, "conver");
   const messages = conversation?.messages || [];
   const unSeenMessageIds = [];
   for (const msg of messages) {
@@ -37,7 +36,7 @@ const markMessageAsSeen = async (senderId, receiverId) => {
   }
   return {
     success: true,
-    message: "Messages marked as seen",
+    seenMessageIds: unSeenMessageIds,
   };
 };
 

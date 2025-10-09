@@ -4,6 +4,8 @@ const errorMiddleware = require("./middleware/error");
 const User = require("./models/userSchema");
 const router = require("./routers/userRoute");
 const path = require("path");
+const dotenv = require("dotenv");
+dotenv.config();
 const { getUserWithToken } = require("./middleware/getUserWithToken");
 const {
   ConversationModel,
@@ -22,7 +24,7 @@ const app = express();
 const server = http.createServer(app);
 const io = new Server(server, {
   cors: {
-    origin: ["http://localhost:5173"],
+    origin: [process.env.FRONTEND_URL],
     credentials: true,
   },
 });
@@ -44,13 +46,12 @@ io.on("connection", async (socket) => {
   }
   // continue with authenicated user
   // create a room
-
-  socket.join(user?.user?._id.toString());
+  const userId = user?.user?._id;
+  socket.join(userId.toString());
   onlineUser.add(user?.user._id.toString());
   io.emit("onlineUser", Array.from(onlineUser));
   socket.on("message-page", async (userId) => {
     socket.removeAllListeners("new-message");
-
     const isOnline = Array.from(onlineUser).some(
       (onlineUserId) => onlineUserId.toString() === userId
     );
@@ -61,7 +62,6 @@ io.on("connection", async (socket) => {
       email: userDetails?.email,
       profile_pic: userDetails?.avatar.url,
       lastSeen: userDetails?.lastSeen,
-      online: isOnline,
     };
     socket.emit("message-user", payload);
     try {
@@ -78,6 +78,7 @@ io.on("connection", async (socket) => {
     // console.log(getConversationMessage, "get conversation");
 
     // check preview conversion
+
     socket.on("new-message", async (data) => {
       const sender = data.sender;
       const receiver = data?.receiver;
@@ -129,6 +130,7 @@ io.on("connection", async (socket) => {
           "message",
           getNewConversationMessage?.messages
         );
+
         io.to(data?.receiver).emit(
           "message",
           getNewConversationMessage?.messages
@@ -147,24 +149,37 @@ io.on("connection", async (socket) => {
     });
   });
   socket.on("seen", async (messageSenderId) => {
-    await markMessageAsSeen(messageSenderId, user?.user?._id);
+    io.removeAllListeners("seen-status");
+    const status = await markMessageAsSeen(messageSenderId, user?.user?._id);
+    if (status.success && status.seenMessageIds?.length > 0) {
+      io.to(messageSenderId).emit("seen-status", {
+        messageIds: status.seenMessageIds,
+      });
+    }
   });
-  socket.on("last-seen", async (yearMonthDaytime) => {
-    const dateStr = yearMonthDaytime.join(" ");
-
+  socket.on("update-last-seen", async (timestamp) => {
     try {
       await User.findByIdAndUpdate(
-        user?.user?._id,
-        {
-          lastSeen: dateStr,
-        },
-        {
-          new: true,
-        }
+        userId,
+        { lastSeen: timestamp },
+        { new: true }
       );
-    } catch (err) {
-      console.log(err, "error in last-seen  app.js");
+      onlineUser.delete(userId);
+      socket.emit("user-status-update", {
+        userId,
+        online: false,
+        lastSeen: timestamp,
+      });
+    } catch (error) {
+      console.log(error, "app.js");
     }
+  });
+  // ✅ When frontend emits user-online (tab focus)
+  socket.on("user-online", async () => {
+    onlineUser.add(userId);
+    await User.findByIdAndUpdate(userId, { lastSeen: null });
+    // Inform others this user came online
+    io.emit("user-status-update", { userId, online: true });
   });
   socket.on("sidebar", async (currentUserId) => {
     const sidebarMessages = await getConversation(currentUserId);
@@ -182,6 +197,7 @@ io.on("connection", async (socket) => {
 const fileUpload = require("express-fileupload");
 const { type } = require("os");
 const { default: mongoose } = require("mongoose");
+const { stat } = require("fs");
 
 // const { log } = require("console");
 
@@ -189,7 +205,7 @@ const temp = path.join(__dirname, "temp/directory");
 app.use(express.json());
 app.use(
   cors({
-    origin: ["http://localhost:5173"],
+    origin: [process.env.FRONTEND_URL],
     methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
     credentials: true,
     optionsSuccessStatus: 204,

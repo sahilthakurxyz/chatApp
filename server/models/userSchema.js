@@ -3,6 +3,7 @@ const validator = require("validator");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const crypto = require("crypto");
+const { type } = require("os");
 const userSchema = new mongoose.Schema({
   name: {
     type: String,
@@ -45,6 +46,10 @@ const userSchema = new mongoose.Schema({
   lastSeen: {
     type: String,
     default: null,
+  },
+  online: {
+    type: Boolean,
+    default: false,
   },
 });
 

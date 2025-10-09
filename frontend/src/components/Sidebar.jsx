@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useState } from "react";
-import { NavLink } from "react-router-dom";
+import { NavLink, useNavigate } from "react-router-dom";
 import { AiOutlineMessage } from "react-icons/ai";
 import { FaUserPlus } from "react-icons/fa6";
 import { BiLeftArrow, BiLogOut } from "react-icons/bi";
@@ -10,7 +10,6 @@ import { FiArrowUpLeft } from "react-icons/fi";
 import { motion } from "framer-motion";
 import SearchUser from "./SearchUser.jsx";
 import { SocketContext } from "../socket/socketContext.jsx";
-import { emitLastSeen } from "../App.jsx";
 import Avatar from "./user/Avatar.jsx";
 import { IoImagesOutline } from "react-icons/io5";
 import { BsCameraVideo } from "react-icons/bs";
@@ -22,6 +21,7 @@ const Sidebar = () => {
   const [editUserOpen, setEditUserOpen] = useState(false);
   const { user } = useSelector((state) => state.user);
   const onlineUser = useSelector((state) => state?.user?.onlineUser);
+  const navigate = useNavigate();
   // const isOnline = onlineUser.includes(user.user?._id);
   const { setSocketConnectionState, socketConnectionState } =
     useContext(SocketContext);
@@ -54,11 +54,13 @@ const Sidebar = () => {
   }, [socketConnectionState, user]);
   const handleLogout = () => {
     if (socketConnectionState) {
-      emitLastSeen(socketConnectionState);
+      // emitLastSeen(socketConnectionState);
+      socketConnectionState?.emit("update-last-seen", new Date().toISOString());
       socketConnectionState.disconnect();
     }
     setSocketConnectionState(null);
     dispatch(logout());
+    navigate("/email");
   };
   return (
     <div className="w-full h-full grid grid-cols-[48px,1fr] bg-white">
@@ -159,36 +161,38 @@ const Sidebar = () => {
                   </p>
                   <div className="flex text-slate-500 text-sm ">
                     <div>
-                      {sidebarUser?.lastMsg?.imageUrl !==
-                        "default_image_url" && (
-                        <div className="flex items-center gap-2">
-                          <span>
-                            <IoImagesOutline />
-                          </span>
-                          {!sidebarUser?.lastMsg?.text ? (
-                            "Image"
-                          ) : (
-                            <p className="text-ellipsis line-clamp-1">
-                              {sidebarUser?.lastMsg?.text}
-                            </p>
-                          )}
-                        </div>
-                      )}
-                      {sidebarUser?.lastMsg?.videoUrl !==
-                        "default_video_url" && (
-                        <div className="flex items-center gap-2">
-                          <span>
-                            <BsCameraVideo />
-                          </span>
-                          {!sidebarUser?.lastMsg?.text ? (
-                            "Video"
-                          ) : (
-                            <p className="text-ellipsis line-clamp-1">
-                              {sidebarUser?.lastMsg?.text}
-                            </p>
-                          )}
-                        </div>
-                      )}
+                      {sidebarUser?.lastMsg?.imageUrl &&
+                        sidebarUser?.lastMsg?.imageUrl !==
+                          "default_image_url" && (
+                          <div className="flex items-center gap-2">
+                            <span>
+                              <IoImagesOutline />
+                            </span>
+                            {!sidebarUser?.lastMsg?.text ? (
+                              "Image"
+                            ) : (
+                              <p className="text-ellipsis line-clamp-1">
+                                {sidebarUser?.lastMsg?.text}
+                              </p>
+                            )}
+                          </div>
+                        )}
+                      {sidebarUser?.lastMsg?.videoUrl &&
+                        sidebarUser?.lastMsg?.videoUrl !==
+                          "default_video_url" && (
+                          <div className="flex items-center gap-2">
+                            <span>
+                              <BsCameraVideo />
+                            </span>
+                            {!sidebarUser?.lastMsg?.text ? (
+                              "Video"
+                            ) : (
+                              <p className="text-ellipsis line-clamp-1">
+                                {sidebarUser?.lastMsg?.text}
+                              </p>
+                            )}
+                          </div>
+                        )}
                     </div>
                     <div className="text-ellipsis line-clamp-1">
                       {sidebarUser?.lastMsg?.imageUrl === "default_image_url" &&

@@ -16,12 +16,11 @@ import axios, { all } from "axios";
 import moment from "moment";
 import { BACKEND_URL_PROD } from "../constant.js";
 import Avatar from "./user/Avatar.jsx";
-import Loading from "./Loading.jsx";
+import { RiCheckDoubleLine } from "react-icons/ri";
 const MessagePage = () => {
   const { user } = useSelector((state) => state?.user);
-  const { socketConnectionState, isLoading, setSocketConnectionState } =
-    useContext(SocketContext);
-
+  const { socketConnectionState, isLoading } = useContext(SocketContext);
+  socketConnectionState?.on("user-status-update", (data) => {});
   const params = useParams();
   const [userData, setUserData] = useState(null);
   const [message, setMessage] = useState({
@@ -52,20 +51,40 @@ const MessagePage = () => {
         const lastMessage = data[data?.length - 1];
 
         if (lastMessage?.senderId !== user?.user?._id && !lastMessage?.seen) {
-          console.log(lastMessage, "last message");
           socketConnectionState?.emit("seen", params.userId);
         }
       }
       setAllMessages(data);
     };
+    // emit when user open the chat of user
+    const handleStatusUpdate = (data) => {
+      if (data?.userId === userData?._id) {
+        setUserData((prev) => ({
+          ...prev,
+          online: data.online,
+          lastSeen: data.lastSeen,
+        }));
+      }
+    };
+    const handleSeenStatus = ({ messageIds }) => {
+      setAllMessages((prev) =>
+        prev.map((msg) =>
+          messageIds.includes(msg._id) ? { ...msg, seen: true } : msg
+        )
+      );
+    };
     if (socketConnectionState) {
-      // emit when user open the chat of user
-      socketConnectionState?.emit("message-page", params.userId);
       // remove the previous event listensers
       socketConnectionState?.off("message-user", handleMessageUser);
       socketConnectionState?.off("message", handlePrevMessage);
+      socketConnectionState?.off("user-status-update", handleStatusUpdate);
+      socketConnectionState?.off("seen-status", handleSeenStatus);
+      // cleaned
       socketConnectionState?.on("message-user", handleMessageUser);
       socketConnectionState?.on("message", handlePrevMessage);
+      socketConnectionState?.on("seen-status", handleSeenStatus);
+      // Emit Once
+      socketConnectionState?.emit("message-page", params.userId);
     }
     setMessage({
       photo: "",
@@ -77,6 +96,8 @@ const MessagePage = () => {
     return () => {
       socketConnectionState?.off("message-user", handleMessageUser);
       socketConnectionState?.off("message", handlePrevMessage);
+      socketConnectionState?.off("user-status-update", handleStatusUpdate);
+      socketConnectionState?.off("seen-status", handleSeenStatus);
     };
   }, [socketConnectionState, params.userId, isLoading, user]);
   useEffect(() => {
@@ -286,9 +307,9 @@ const MessagePage = () => {
                 {userData?.name}
               </p>
               <p className="text-gray-300 font-medium ">
-                {userData?.online
-                  ? "online"
-                  : formatLastSeen(userData?.lastSeen)}
+                {userData?.lastSeen
+                  ? formatLastSeen(userData?.lastSeen)
+                  : "Online"}
               </p>
             </div>
           </div>
@@ -386,9 +407,20 @@ const MessagePage = () => {
                   mess?.videoUrl === "default_video_url" && (
                     <div className="flex items-end justify-between relative">
                       <p className="mr-4  ">{mess?.text}</p>
-                      <p className="text-[8px] whitespace-nowrap">
-                        {moment(mess?.createdAt).format("h:mm A")}
-                      </p>
+                      <div className=" box-border">
+                        <p className="text-[8px] whitespace-nowrap">
+                          {moment(mess?.createdAt).format("h:mm A")}
+                        </p>
+                        {mess?.senderId === user?.user?._id && (
+                          <span
+                            className={`${
+                              mess.seen ? "text-blue-700" : ""
+                            } relative left-[13px] top-[5px]`}
+                          >
+                            <RiCheckDoubleLine />
+                          </span>
+                        )}
+                      </div>
                     </div>
                   )}
               </div>

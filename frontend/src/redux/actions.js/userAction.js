@@ -74,7 +74,6 @@ export const verifyPassword = (password) => async (dispatch) => {
       password,
       config
     );
-    console.log(data, "data in");
     dispatch(verifyPasswordSuccess(data?.data));
   } catch (error) {
     dispatch(verifyPasswordFail(error?.response?.data));
