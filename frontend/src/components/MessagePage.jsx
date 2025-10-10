@@ -129,6 +129,8 @@ const MessagePage = () => {
     const lastSeenDate = new Date(dateParts);
     return lastSeenDate;
   };
+  console.log(allMessages, "all messages");
+  console.log(user?.user?._id, "id");
   const formatLastSeen = (lastSeenDateStr) => {
     const now = new Date();
     const lastSeenDate = validateLastSeenDate(lastSeenDateStr);
@@ -304,7 +306,7 @@ const MessagePage = () => {
             </div>
             <div>
               <p className=" mt-1 text-gray-500 font-semibold">
-                {userData?.name}
+                {userData?.name} {user?.user?._id === params.userId && "(Self)"}
               </p>
               <p className="text-gray-300 font-medium ">
                 {userData?.lastSeen
@@ -414,7 +416,9 @@ const MessagePage = () => {
                         {mess?.senderId === user?.user?._id && (
                           <span
                             className={`${
-                              mess.seen ? "text-blue-700" : ""
+                              mess.seen || mess?.senderId === params.userId
+                                ? "text-blue-700"
+                                : ""
                             } relative left-[13px] top-[5px]`}
                           >
                             <RiCheckDoubleLine />
