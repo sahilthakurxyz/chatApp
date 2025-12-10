@@ -90,6 +90,7 @@ const userSlice = createSlice({
     loadUserSuccess: (state, action) => {
       state.loading = false;
       state.user = action.payload;
+      state.error = null;
     },
     loadUserFail: (state, action) => {
       state.loading = false;
