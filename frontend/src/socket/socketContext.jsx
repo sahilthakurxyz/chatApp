@@ -11,7 +11,9 @@ const SocketProvder = ({ children }) => {
     let socketConnection;
 
     if (token) {
-      socketConnection = io("https://chatapp-c5fr.onrender.com/", {
+      // socketConnection = io("https://chatapp-c5fr.onrender.com/", {
+      // New socket Railway
+      socketConnection = io("https://chatapp-production-625d.up.railway.app", {
         // socketConnection = io("https://chatapp-production-e19f.up.railway.app", {
         // socketConnection = io("http://localhost:4001", {
         auth: {
