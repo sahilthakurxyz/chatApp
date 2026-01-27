@@ -1,8 +1,9 @@
+const dotenv = require("dotenv");
+dotenv.config();
 const { app, server } = require("./app.js");
 
 const { v2: cloudinary } = require("cloudinary");
-const dotenv = require("dotenv");
-dotenv.config();
+
 const connectDB = require("./config/database.js");
 
 const port = process.env.PORT || 4000;
