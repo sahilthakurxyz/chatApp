@@ -1,5 +1,6 @@
 const dotenv = require("dotenv");
 dotenv.config();
+console.log(process.env.PORT, "port");
 const { app, server } = require("./app.js");
 
 const { v2: cloudinary } = require("cloudinary");
