@@ -11,6 +11,7 @@ npm-debug.log*
 # Local environment variables
 server/config/.env  
 .env.local
+server/.env
 .env.development.local
 .env.test.local
 .env.production.local
