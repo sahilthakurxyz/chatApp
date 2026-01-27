@@ -212,7 +212,7 @@ app.use(
     // optionsSuccessStatus: 204,
   }),
 );
-app.options("*", { origin: process.env.FRONTEND_URL });
+app.options("*", cors({ origin: process.env.FRONTEND_URL }));
 app.use(
   fileUpload({
     useTempFiles: true,
