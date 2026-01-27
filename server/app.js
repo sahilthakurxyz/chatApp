@@ -5,7 +5,7 @@ const User = require("./models/userSchema");
 const router = require("./routers/userRoute");
 const path = require("path");
 const dotenv = require("dotenv");
-dotenv.config();
+
 const { getUserWithToken } = require("./middleware/getUserWithToken");
 const {
   ConversationModel,
