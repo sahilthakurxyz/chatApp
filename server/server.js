@@ -1,6 +1,7 @@
+const path = require("path");
 const dotenv = require("dotenv");
-dotenv.config();
-console.log(process.env.PORT, "port");
+dotenv.config({ path: path.join(__dirname, ".env") });
+
 const { app, server } = require("./app.js");
 
 const { v2: cloudinary } = require("cloudinary");
