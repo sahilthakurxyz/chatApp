@@ -24,14 +24,14 @@ const app = express();
 const server = http.createServer(app);
 const io = new Server(server, {
   cors: {
-    origin: [process.env.FRONTEND_URL],
+    origin: process.env.FRONTEND_URL,
     credentials: true,
   },
 });
 // online User
 
 const onlineUser = new Set();
-// socket running on 4001
+// socket running on 4002
 io.on("connection", async (socket) => {
   console.log("Connect User", socket.id);
   const { token } = socket.handshake.auth;
@@ -53,7 +53,7 @@ io.on("connection", async (socket) => {
   socket.on("message-page", async (userId) => {
     socket.removeAllListeners("new-message");
     const isOnline = Array.from(onlineUser).some(
-      (onlineUserId) => onlineUserId.toString() === userId
+      (onlineUserId) => onlineUserId.toString() === userId,
     );
     const userDetails = await User.findById(userId);
     const payload = {
@@ -96,7 +96,7 @@ io.on("connection", async (socket) => {
             $setOnInsert: { sender, receiver },
           },
           // { upsert: true, new: true, session }
-          { upsert: true, new: true }
+          { upsert: true, new: true },
         );
         // creating message within transaction
         const newMessage = await MessageModel.create(
@@ -105,7 +105,7 @@ io.on("connection", async (socket) => {
             imageUrl: data?.photo,
             videoUrl: data?.video,
             senderId: data?.sender,
-          }
+          },
           // { session }
         );
         await ConversationModel.updateOne(
@@ -113,7 +113,7 @@ io.on("connection", async (socket) => {
           {
             $push: { messages: newMessage?._id },
             $set: { updatedAt: new Date() },
-          }
+          },
           // { session }
         );
         // await session.commitTransaction();
@@ -128,16 +128,16 @@ io.on("connection", async (socket) => {
           .sort({ updatedAt: -1 });
         io.to(data?.sender).emit(
           "message",
-          getNewConversationMessage?.messages
+          getNewConversationMessage?.messages,
         );
 
         io.to(data?.receiver).emit(
           "message",
-          getNewConversationMessage?.messages
+          getNewConversationMessage?.messages,
         );
         const sidebarConversationSender = await getConversation(data?.sender);
         const sidebarConversationReceiver = await getConversation(
-          data?.receiver
+          data?.receiver,
         );
         io.to(data?.sender).emit("conversation", sidebarConversationSender);
         io.to(data?.receiver).emit("conversation", sidebarConversationReceiver);
@@ -162,7 +162,7 @@ io.on("connection", async (socket) => {
       await User.findByIdAndUpdate(
         userId,
         { lastSeen: timestamp },
-        { new: true }
+        { new: true },
       );
       onlineUser.delete(userId);
       socket.emit("user-status-update", {
@@ -205,18 +205,19 @@ const temp = path.join(__dirname, "temp/directory");
 app.use(express.json());
 app.use(
   cors({
-    origin: [process.env.FRONTEND_URL],
-    methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
+    origin: process.env.FRONTEND_URL,
     credentials: true,
-    optionsSuccessStatus: 204,
-  })
+    methods: ["GET,HEAD,PUT,PATCH,POST,DELETE"],
+    allowedHeaders: ["Content-Type", "Authorization"],
+    // optionsSuccessStatus: 204,
+  }),
 );
-
+app.options("*", { origin: process.env.FRONTEND_URL });
 app.use(
   fileUpload({
     useTempFiles: true,
     tempFileDir: temp,
-  })
+  }),
 );
 
 // Api Route

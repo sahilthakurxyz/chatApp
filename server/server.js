@@ -17,13 +17,14 @@ cloudinary.config({
   api_key: process.env.CLOUDINARY_API_KEY,
   api_secret: process.env.CLOUDINARY_API_SECRET,
 });
-server.listen(port, () => {
+server.listen(port, "0.0.0.0", () => {
   console.log(`Server running on ${port}`);
 });
+
 // unhandled Promise Rejecton
 process.on("unhandledRejection", (err) => {
   console.log(
-    `Server is Shutting down due to server Unhandled Promise Rejecton,${err.message}`
+    `Server is Shutting down due to server Unhandled Promise Rejecton,${err.message}`,
   );
   server.close(() => {
     process.exit(1);
