@@ -9,6 +9,7 @@ const { v2: cloudinary } = require("cloudinary");
 const connectDB = require("./config/database.js");
 
 const port = process.env.PORT || 4000;
+console.log(process.env.PORT, "PORT");
 process.on("uncaughtException", (err) => {
   console.log(`Server is Shutting Down due to Unchaught Error,${err.message}`);
 
