@@ -19,7 +19,7 @@ const { default: mongoose } = require("mongoose");
 const { stat } = require("fs");
 
 // const { log } = require("console");
-
+const app = express();
 const temp = path.join(__dirname, "temp/directory");
 app.use(express.json());
 const corsOptions = {
@@ -47,7 +47,6 @@ app.use(errorMiddleware);
 const http = require("http");
 const { Server } = require("socket.io");
 // end
-const app = express();
 
 //  Socket Connection
 const server = http.createServer(app);
