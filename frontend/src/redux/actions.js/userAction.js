@@ -34,7 +34,7 @@ export const register = (userData) => async (dispatch) => {
     const data = await axios.post(
       `${BACKEND_URL_PROD}/register`,
       userData,
-      config
+      config,
     );
     dispatch(registerSuccess(data?.data));
   } catch (error) {
@@ -47,13 +47,15 @@ export const verifyEmail = (email) => async (dispatch) => {
   try {
     dispatch(veriyEmailRequest());
     const config = {
-      "Content-Type": "application/json",
+      headers: {
+        "Content-Type": "application/json",
+      },
       withCredentials: true,
     };
     const data = await axios.post(
       `${BACKEND_URL_PROD}/email`,
       { email },
-      config
+      config,
     );
     dispatch(veriyEmailSuccess(data?.data));
   } catch (error) {
@@ -72,7 +74,7 @@ export const verifyPassword = (password) => async (dispatch) => {
     const data = await axios.post(
       `${BACKEND_URL_PROD}/password`,
       password,
-      config
+      config,
     );
     dispatch(verifyPasswordSuccess(data?.data));
   } catch (error) {
@@ -128,7 +130,7 @@ export const updateUserInfo = (formData) => async (dispatch) => {
     const data = await axios.put(
       `${BACKEND_URL_PROD}/update-user`,
       formData,
-      config
+      config,
     );
     dispatch(updateUserSuccess(data?.data));
   } catch (error) {
@@ -148,7 +150,7 @@ export const searchForUser = (search) => async (dispatch) => {
       {
         search,
       },
-      config
+      config,
     );
 
     dispatch(searchUserSuccess(data?.data));
