@@ -23,10 +23,7 @@ const app = express();
 //  Socket Connection
 const server = http.createServer(app);
 const io = new Server(server, {
-  cors: {
-    origin: process.env.FRONTEND_URL,
-    credentials: true,
-  },
+  cors: corsOptions, // make Socket.io CORS exactly same as Express
 });
 // online User
 
@@ -203,16 +200,15 @@ const { stat } = require("fs");
 
 const temp = path.join(__dirname, "temp/directory");
 app.use(express.json());
-app.use(
-  cors({
-    origin: process.env.FRONTEND_URL,
-    credentials: true,
-    methods: ["GET,HEAD,PUT,PATCH,POST,DELETE"],
-    allowedHeaders: ["Content-Type", "Authorization"],
-    // optionsSuccessStatus: 204,
-  }),
-);
-app.options("*", cors({ origin: process.env.FRONTEND_URL }));
+const corsOptions = {
+  origin: process.env.FRONTEND_URL,
+  credentials: true,
+  methods: ["GET", "HEAD", "PUT", "PATCH", "POST", "DELETE"],
+  allowedHeaders: ["Content-Type", "Authorization"],
+};
+
+app.use(cors(corsOptions));
+app.options("*", cors(corsOptions));
 app.use(
   fileUpload({
     useTempFiles: true,
