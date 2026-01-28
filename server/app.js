@@ -13,6 +13,35 @@ const {
 } = require("./models/conversationSchema");
 const { getConversation } = require("./middleware/sidebarConversation");
 const { markMessageAsSeen } = require("./middleware/seenMessage");
+const fileUpload = require("express-fileupload");
+const { type } = require("os");
+const { default: mongoose } = require("mongoose");
+const { stat } = require("fs");
+
+// const { log } = require("console");
+
+const temp = path.join(__dirname, "temp/directory");
+app.use(express.json());
+const corsOptions = {
+  origin: process.env.FRONTEND_URL,
+  credentials: true,
+  methods: ["GET", "HEAD", "PUT", "PATCH", "POST", "DELETE"],
+  allowedHeaders: ["Content-Type", "Authorization"],
+};
+
+app.use(cors(corsOptions));
+app.options("*", cors(corsOptions));
+app.use(
+  fileUpload({
+    useTempFiles: true,
+    tempFileDir: temp,
+  }),
+);
+
+// Api Route
+
+app.use("/api/chatapp", router);
+app.use(errorMiddleware);
 // Socket
 // import for Socket
 const http = require("http");
@@ -23,7 +52,7 @@ const app = express();
 //  Socket Connection
 const server = http.createServer(app);
 const io = new Server(server, {
-  cors: corsOptions, // make Socket.io CORS exactly same as Express
+  cors: corsOptions,
 });
 // online User
 
@@ -191,35 +220,7 @@ io.on("connection", async (socket) => {
     console.log(`user disconnected ${user?.user?._id}`);
   });
 });
-const fileUpload = require("express-fileupload");
-const { type } = require("os");
-const { default: mongoose } = require("mongoose");
-const { stat } = require("fs");
 
-// const { log } = require("console");
-
-const temp = path.join(__dirname, "temp/directory");
-app.use(express.json());
-const corsOptions = {
-  origin: process.env.FRONTEND_URL,
-  credentials: true,
-  methods: ["GET", "HEAD", "PUT", "PATCH", "POST", "DELETE"],
-  allowedHeaders: ["Content-Type", "Authorization"],
-};
-
-app.use(cors(corsOptions));
-app.options("*", cors(corsOptions));
-app.use(
-  fileUpload({
-    useTempFiles: true,
-    tempFileDir: temp,
-  }),
-);
-
-// Api Route
-
-app.use("/api/chatapp", router);
-app.use(errorMiddleware);
 module.exports = {
   app,
   server,
