@@ -4,8 +4,6 @@ const errorMiddleware = require("./middleware/error");
 const User = require("./models/userSchema");
 const router = require("./routers/userRoute");
 const path = require("path");
-const dotenv = require("dotenv");
-
 const { getUserWithToken } = require("./middleware/getUserWithToken");
 const {
   ConversationModel,
@@ -14,23 +12,22 @@ const {
 const { getConversation } = require("./middleware/sidebarConversation");
 const { markMessageAsSeen } = require("./middleware/seenMessage");
 const fileUpload = require("express-fileupload");
-const { type } = require("os");
-const { default: mongoose } = require("mongoose");
-const { stat } = require("fs");
-
-// const { log } = require("console");
 const app = express();
 const temp = path.join(__dirname, "temp/directory");
 app.use(express.json());
-const corsOptions = {
-  origin: process.env.FRONTEND_URL,
-  credentials: true,
-  methods: ["GET", "HEAD", "PUT", "PATCH", "POST", "DELETE"],
-  allowedHeaders: ["Content-Type", "Authorization"],
-};
+app.use(
+  cors({
+    // origin: ["https://your-personal-shop.vercel.app"],
+    origin: process.env.FRONTEND_URL,
+    credentials: true,
+    // origin: ["https://cartico-ew-payw.vercel.app"],
+    methods: ["GET,HEAD,PUT,PATCH,POST,DELETE"],
+    allowedHeaders: ["Content-Type", "Authorization"],
 
-app.use(cors(corsOptions));
-app.options("*", cors(corsOptions));
+    // optionsSuccessStatus: 204,
+  }),
+);
+app.options("*", cors({ origin: process.env.FRONTEND_URL }));
 app.use(
   fileUpload({
     useTempFiles: true,
@@ -51,7 +48,12 @@ const { Server } = require("socket.io");
 //  Socket Connection
 const server = http.createServer(app);
 const io = new Server(server, {
-  cors: corsOptions,
+  cors: {
+    origin: process.env.FRONTEND_URL,
+    credentials: true,
+    methods: ["GET,HEAD,PUT,PATCH,POST,DELETE"],
+    allowedHeaders: ["Content-Type", "Authorization"],
+  },
 });
 // online User
 
