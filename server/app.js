@@ -14,6 +14,22 @@ const { markMessageAsSeen } = require("./middleware/seenMessage");
 const fileUpload = require("express-fileupload");
 const app = express();
 const temp = path.join(__dirname, "temp/directory");
+app.use((req, res, next) => {
+  if (req.method === "OPTIONS") {
+    res.setHeader("Access-Control-Allow-Origin", process.env.FRONTEND_URL);
+    res.setHeader(
+      "Access-Control-Allow-Methods",
+      "GET, POST, PUT, PATCH, DELETE",
+    );
+    res.setHeader(
+      "Access-Control-Allow-Headers",
+      "Content-Type, Authorization",
+    );
+    res.setHeader("Access-Control-Allow-Credentials", "true");
+    return res.sendStatus(204);
+  }
+  next();
+});
 app.use(express.json());
 app.use(
   cors({
@@ -27,7 +43,6 @@ app.use(
     // optionsSuccessStatus: 204,
   }),
 );
-app.options("*", cors({ origin: process.env.FRONTEND_URL }));
 app.use(
   fileUpload({
     useTempFiles: true,
