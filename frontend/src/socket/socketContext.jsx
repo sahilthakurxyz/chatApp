@@ -13,7 +13,7 @@ const SocketProvder = ({ children }) => {
     if (token) {
       // socketConnection = io("https://chatapp-c5fr.onrender.com/", {
       // New socket Railway
-      socketConnection = io("https://chat.bytecrafts.dpdns.org", {
+      socketConnection = io("https://chat-api.bytecrafts.dpdns.org", {
         // socketConnection = io("https://chatapp-production-e19f.up.railway.app", {
         // socketConnection = io("http://localhost:4001", {
         auth: {
