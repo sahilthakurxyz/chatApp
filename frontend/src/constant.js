@@ -4,7 +4,8 @@ import { jwtDecode } from "jwt-decode";
 // New BACKEND URL Railway
 // export const BACKEND_URL_PROD =
 //   "https://chatapp-production-625d.up.railway.app";
-export const BACKEND_URL_PROD = "chat-api.bytecrafts.dpdns.org/api/chatapp";
+export const BACKEND_URL_PROD =
+  "https://chat-api.bytecrafts.dpdns.org/api/chatapp";
 export const isTokenExpired = (token) => {
   if (!token) return true;
   const { exp } = jwtDecode(token);
