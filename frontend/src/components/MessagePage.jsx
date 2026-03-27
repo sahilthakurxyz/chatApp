@@ -37,6 +37,11 @@ const MessagePage = () => {
   const previewRef = useRef(null);
   const messageRef = useRef(null);
   useEffect(() => {
+    if (socketConnectionState) {
+      socketConnectionState?.emit("message-page", params.userId);
+    }
+  }, [socketConnectionState]);
+  useEffect(() => {
     if (!isLoading && socketConnectionState === null) {
       // console.error("Socket connection not established.");
       return;
@@ -69,8 +74,8 @@ const MessagePage = () => {
     const handleSeenStatus = ({ messageIds }) => {
       setAllMessages((prev) =>
         prev.map((msg) =>
-          messageIds.includes(msg._id) ? { ...msg, seen: true } : msg
-        )
+          messageIds.includes(msg._id) ? { ...msg, seen: true } : msg,
+        ),
       );
     };
     if (socketConnectionState) {
@@ -84,7 +89,6 @@ const MessagePage = () => {
       socketConnectionState?.on("message", handlePrevMessage);
       socketConnectionState?.on("seen-status", handleSeenStatus);
       // Emit Once
-      socketConnectionState?.emit("message-page", params.userId);
     }
     setMessage({
       photo: "",
@@ -123,14 +127,13 @@ const MessagePage = () => {
             "Friday",
             "Saturday",
             "Sunday",
-          ].includes(part)
+          ].includes(part),
       )
       .join(" ");
     const lastSeenDate = new Date(dateParts);
     return lastSeenDate;
   };
-  console.log(allMessages, "all messages");
-  console.log(user?.user?._id, "id");
+
   const formatLastSeen = (lastSeenDateStr) => {
     const now = new Date();
     const lastSeenDate = validateLastSeenDate(lastSeenDateStr);
@@ -175,14 +178,14 @@ const MessagePage = () => {
       const fileType = file.type.includes("image/")
         ? "photo"
         : file.type.includes("video/")
-        ? "video"
-        : null;
+          ? "video"
+          : null;
       if (!fileType)
         return alert("Unsupported file type! Please upload an image or video.");
       const maxSize = 5 * 1024 * 1024;
       if (file.size > maxSize)
         return alert(
-          "file size to large! please upload an file smaller than 5 mb."
+          "file size to large! please upload an file smaller than 5 mb.",
         );
       const reader = new FileReader();
       reader.onload = () => {
@@ -236,7 +239,7 @@ const MessagePage = () => {
         const response = await axios.post(
           `${BACKEND_URL_PROD}/chat-media`,
           formData,
-          config
+          config,
         );
         mediaUrl = response?.data?.url;
       }
